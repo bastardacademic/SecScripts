@@ -1,0 +1,34 @@
+version: 1.0
+playbook:
+  name: SIEM Alert Triage
+  description: Automatically triages SIEM alerts
+  steps:
+    - name: Fetch SIEM Alerts
+      action: GET
+      url: https://siem.example.com/api/alerts
+      headers:
+        Authorization: Bearer YOUR_API_KEY
+      save_as: siem_alerts
+    
+    - name: Triage Alerts
+      action: POST
+      url: https://soarplatform.example.com/api/alerts/triage
+      headers:
+        Authorization: Bearer YOUR_API_KEY
+      body:
+        alerts: "{{siem_alerts}}"
+      save_as: triaged_alerts
+    
+    - name: Assign Alerts to Team Members
+      action: POST
+      url: https://soarplatform.example.com/api/alerts/assign
+      headers:
+        Authorization: Bearer YOUR_API_KEY
+      body:
+        triaged_alerts: "{{triaged_alerts}}"
+    
+    - name: Notify Team Members
+      action: POST
+      url: https://hooks.slack.com/services/YOUR/WEBHOOK/URL
+      body:
+        text: "New SIEM alerts have been triaged and assigned for investigation."

@@ -1,0 +1,25 @@
+version: 1.0
+playbook:
+  name: Data Exfiltration Response
+  description: Automatically handles data exfiltration attempts
+  steps:
+    - name: Fetch Incident Details
+      action: GET
+      url: https://soarplatform.example.com/api/incidents/{{incident_id}}
+      headers:
+        Authorization: Bearer YOUR_API_KEY
+      save_as: incident_details
+    
+    - name: Block Source IP
+      action: POST
+      url: https://soarplatform.example.com/api/firewall/block
+      headers:
+        Authorization: Bearer YOUR_API_KEY
+      body:
+        ip_address: "{{incident_details.source_ip}}"
+    
+    - name: Notify Security Team
+      action: POST
+      url: https://hooks.slack.com/services/YOUR/WEBHOOK/URL
+      body:
+        text: "Data exfiltration attempt detected from IP {{incident_details.source_ip}}. IP has been blocked. Incident ID: {{incident_id}}"

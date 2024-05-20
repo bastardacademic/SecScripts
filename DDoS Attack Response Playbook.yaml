@@ -1,0 +1,25 @@
+version: 1.0
+playbook:
+  name: DDoS Attack Response
+  description: Automatically responds to DDoS attacks
+  steps:
+    - name: Detect DDoS Attack
+      action: GET
+      url: https://soarplatform.example.com/api/incidents/{{incident_id}}
+      headers:
+        Authorization: Bearer YOUR_API_KEY
+      save_as: incident_details
+    
+    - name: Activate DDoS Mitigation
+      action: POST
+      url: https://soarplatform.example.com/api/network/ddos_mitigation
+      headers:
+        Authorization: Bearer YOUR_API_KEY
+      body:
+        target_ip: "{{incident_details.target_ip}}"
+    
+    - name: Notify Network Team
+      action: POST
+      url: https://hooks.slack.com/services/YOUR/WEBHOOK/URL
+      body:
+        text: "DDoS attack detected targeting IP {{incident_details.target_ip}}. Mitigation controls activated. Incident ID: {{incident_id}}"

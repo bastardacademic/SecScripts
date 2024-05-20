@@ -1,0 +1,25 @@
+version: 1.0
+playbook:
+  name: Unauthorized Access Response
+  description: Automatically responds to unauthorized access attempts
+  steps:
+    - name: Fetch Incident Details
+      action: GET
+      url: https://soarplatform.example.com/api/incidents/{{incident_id}}
+      headers:
+        Authorization: Bearer YOUR_API_KEY
+      save_as: incident_details
+    
+    - name: Disable User Account
+      action: POST
+      url: https://soarplatform.example.com/api/users/disable
+      headers:
+        Authorization: Bearer YOUR_API_KEY
+      body:
+        user_id: "{{incident_details.user_id}}"
+    
+    - name: Notify Security Team
+      action: POST
+      url: https://hooks.slack.com/services/YOUR/WEBHOOK/URL
+      body:
+        text: "Unauthorized access attempt detected for user {{incident_details.user_id}}. Account has been disabled. Incident ID: {{incident_id}}"

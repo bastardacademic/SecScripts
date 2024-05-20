@@ -1,0 +1,25 @@
+version: 1.0
+playbook:
+  name: Rogue Device Detection
+  description: Automatically detects and isolates rogue devices on the network
+  steps:
+    - name: Detect Rogue Device
+      action: GET
+      url: https://soarplatform.example.com/api/incidents/{{incident_id}}
+      headers:
+        Authorization: Bearer YOUR_API_KEY
+      save_as: incident_details
+    
+    - name: Isolate Rogue Device
+      action: POST
+      url: https://soarplatform.example.com/api/network/isolate
+      headers:
+        Authorization: Bearer YOUR_API_KEY
+      body:
+        device_id: "{{incident_details.device_id}}"
+    
+    - name: Notify IT Team
+      action: POST
+      url: https://hooks.slack.com/services/YOUR/WEBHOOK/URL
+      body:
+        text: "Rogue device detected and isolated. Device ID: {{incident_details.device_id}}. Incident ID: {{incident_id}}"

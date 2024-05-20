@@ -1,0 +1,25 @@
+version: 1.0
+playbook:
+  name: User Account Compromise Response
+  description: Automatically responds to compromised user accounts
+  steps:
+    - name: Fetch Incident Details
+      action: GET
+      url: https://soarplatform.example.com/api/incidents/{{incident_id}}
+      headers:
+        Authorization: Bearer YOUR_API_KEY
+      save_as: incident_details
+    
+    - name: Reset User Password
+      action: POST
+      url: https://soarplatform.example.com/api/users/reset_password
+      headers:
+        Authorization: Bearer YOUR_API_KEY
+      body:
+        user_id: "{{incident_details.user_id}}"
+    
+    - name: Notify User and IT Team
+      action: POST
+      url: https://hooks.slack.com/services/YOUR/WEBHOOK/URL
+      body:
+        text: "User account compromise detected for user {{incident_details.user_id}}. Password has been reset. Incident ID: {{incident_id}}"

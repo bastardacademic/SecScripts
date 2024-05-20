@@ -1,0 +1,39 @@
+version: 1.0
+playbook:
+  name: Insider Threat Detection
+  description: Automatically detects and responds to potential insider threats
+  steps:
+    - name: Fetch Incident Details
+      action: GET
+      url: https://soarplatform.example.com/api/incidents/{{incident_id}}
+      headers:
+        Authorization: Bearer YOUR_API_KEY
+      save_as: incident_details
+    
+    - name: Analyze User Activity
+      action: POST
+      url: https://soarplatform.example.com/api/user_activity/analyze
+      headers:
+        Authorization: Bearer YOUR_API_KEY
+      body:
+        user_id: "{{incident_details.user_id}}"
+      save_as: analysis_results
+    
+    - name: Escalate Incident
+      action: POST
+      url: https://soarplatform.example.com/api/incidents/escalate
+      headers:
+        Authorization: Bearer YOUR_API_KEY
+      body:
+        incident_id: "{{incident_id}}"
+        details: "{{analysis_results}}"
+    
+    - name: Log Activity
+      action: POST
+      url: https://soarplatform.example.com/api/activity_logs
+      headers:
+        Authorization: Bearer YOUR_API_KEY
+      body:
+        incident_id: "{{incident_id}}"
+        user_id: "{{incident_details.user_id}}"
+        details: "{{analysis_results}}"

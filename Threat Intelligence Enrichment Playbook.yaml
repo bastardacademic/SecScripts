@@ -1,0 +1,34 @@
+version: 1.0
+playbook:
+  name: Threat Intelligence Enrichment
+  description: Enriches incident data with threat intelligence information
+  steps:
+    - name: Fetch Incident Details
+      action: GET
+      url: https://soarplatform.example.com/api/incidents/{{incident_id}}
+      headers:
+        Authorization: Bearer YOUR_API_KEY
+      save_as: incident_details
+    
+    - name: Enrich with Threat Intelligence
+      action: POST
+      url: https://soarplatform.example.com/api/threatintelligence/enrich
+      headers:
+        Authorization: Bearer YOUR_API_KEY
+      body:
+        ioc: "{{incident_details.ioc}}"
+      save_as: enrichment_data
+    
+    - name: Update Incident with Enriched Data
+      action: POST
+      url: https://soarplatform.example.com/api/incidents/{{incident_id}}
+      headers:
+        Authorization: Bearer YOUR_API_KEY
+      body:
+        enriched_data: "{{enrichment_data}}"
+    
+    - name: Notify Security Team
+      action: POST
+      url: https://hooks.slack.com/services/YOUR/WEBHOOK/URL
+      body:
+        text: "Incident {{incident_id}} enriched with threat intelligence data."
