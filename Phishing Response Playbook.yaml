@@ -1,0 +1,31 @@
+version: 1.0
+playbook:
+  name: Phishing Response
+  description: Automatically responds to phishing emails
+  steps:
+    - name: Fetch Email Details
+      action: GET
+      url: https://soarplatform.example.com/api/emails/{{email_id}}
+      headers:
+        Authorization: Bearer YOUR_API_KEY
+      save_as: email_details
+    - name: Analyze Email Content
+      action: POST
+      url: https://soarplatform.example.com/api/emails/analyze
+      headers:
+        Authorization: Bearer YOUR_API_KEY
+      body:
+        email_id: "{{email_details.id}}"
+      save_as: analysis_results
+    - name: Quarantine Email
+      action: POST
+      url: https://soarplatform.example.com/api/emails/quarantine
+      headers:
+        Authorization: Bearer YOUR_API_KEY
+      body:
+        email_id: "{{email_details.id}}"
+    - name: Notify User and IT Team
+      action: POST
+      url: https://hooks.slack.com/services/YOUR/WEBHOOK/URL
+      body:
+        text: "Phishing email detected and quarantined for user {{email_details.user}}"

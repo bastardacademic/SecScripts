@@ -1,0 +1,31 @@
+version: 1.0
+playbook:
+  name: Ransomware Detection and Response
+  description: Automatically detects and responds to ransomware incidents
+  steps:
+    - name: Fetch Incident Details
+      action: GET
+      url: https://soarplatform.example.com/api/incidents/{{incident_id}}
+      headers:
+        Authorization: Bearer YOUR_API_KEY
+      save_as: incident_details
+    - name: Check for Ransomware Indicators
+      action: POST
+      url: https://soarplatform.example.com/api/ransomware/check
+      headers:
+        Authorization: Bearer YOUR_API_KEY
+      body:
+        incident_id: "{{incident_details.id}}"
+      save_as: ransomware_check
+    - name: Isolate Affected Systems
+      action: POST
+      url: https://soarplatform.example.com/api/systems/isolate
+      headers:
+        Authorization: Bearer YOUR_API_KEY
+      body:
+        system_ids: "{{ransomware_check.affected_systems}}"
+    - name: Notify Security Team
+      action: POST
+      url: https://hooks.slack.com/services/YOUR/WEBHOOK/URL
+      body:
+        text: "Ransomware detected and affected systems isolated for incident {{incident_id}}"
