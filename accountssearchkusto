@@ -1,4 +1,3 @@
-// Extracting account details from logon events and ensuring they are unique
 DeviceLogonEvents
 | where ActionType == "LogonSuccess"
 | summarize FirstLogonTime=min(Timestamp) by DeviceName, AccountDomain, AccountName, AccountSid
@@ -8,14 +7,5 @@ DeviceLogonEvents
     | where OnboardingStatus == "Onboarded"
 ) on DeviceName
 | extend AccountFullName = strcat(AccountDomain, "\", AccountName)
-// Checking for unique accounts and retrieving account status (enabled/disabled)
-| summarize FirstLogonTime=min(FirstLogonTime) by AccountFullName, AccountSid, OSPlatform
+| summarize by AccountFullName, AccountSid, OSPlatform
 | project AccountFullName, AccountSid, OSPlatform
-| join kind=inner (
-    DeviceNetworkEvents
-    | where EventType == "AccountLoggedOn"
-    | summarize by AccountSid
-) on AccountSid
-| project AccountFullName, AccountSid, OSPlatform, AccountStatus = iff(isnotempty(AccountSid), "Enabled", "Disabled")
-// Summarizing to ensure no duplicates
-| summarize by AccountFullName, AccountSid, OSPlatform, AccountStatus
