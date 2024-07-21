@@ -1,0 +1,21 @@
+let startTime = ago(89d);
+let endTime = now();
+
+let timeSlices = range i from 0 to 8 step 1   // Create 9 slices (89 days / 11 days per slice ~ 9)
+    | extend sliceStartTime = startTime + totimespan(i * 11d),
+             sliceEndTime = startTime + totimespan((i + 1) * 11d);
+
+timeSlices
+| mv-apply (
+    DeviceLogonEvents
+    | where Timestamp between (sliceStartTime .. sliceEndTime)
+    | where ActionType == "LogonSucceeded"
+    | where AccountType == "User"                      
+    // | where AccountDomain =~ "yourdomain.com" // Filter for domain accounts
+    // | where AccountDomain !~ "yourdomain.com" // Filter for local accounts
+    | summarize AccountNames = make_set(AccountUpn) by DeviceName 
+    | mv-expand AccountName = AccountNames
+) on (
+    summarize UniqueAccountNames = make_set(AccountName)
+    | mv-expand UniqueAccountName = UniqueAccountNames
+)
